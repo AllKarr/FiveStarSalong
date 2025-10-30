@@ -2,17 +2,28 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/components/CartProvider";
+import { useEffect, useState } from "react";
+
+interface Product {
+  _id: string;
+  name: string;
+  category: string;
+  price: number;
+  image?: string;
+}
 
 export default function BundlesPage() {
   const { addToCart } = useCart();
+  const [bundles, setBundles] = useState<Product[]>([]);
 
-  // Repeat same image 8 times (placeholder setup)
-  const bundles = Array(8).fill({
-    id: "1",
-    name: "3pcs Straight Bundle",
-    category: "Bundle",
-    price: 250,
-  });
+  useEffect(() => {
+    async function fetchProducts() {
+      const res = await fetch("/api/products?category=bundles");
+      const data = await res.json();
+      setBundles(data);
+    }
+    fetchProducts();
+  }, []);
 
   return (
     <main className="bg-white text-black pt-40 pb-20">
@@ -30,17 +41,17 @@ export default function BundlesPage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20">
-          {bundles.map((item, index) => (
+          {bundles.map((item) => (
             <div
-              key={index}
+              key={item._id}
               className="flex flex-col items-center text-center border border-gray-200 shadow-sm hover:shadow-md transition bg-white rounded-lg overflow-hidden"
             >
               <Link
-                href="/singleproduct"
+                href={`/products/${item._id}`}
                 className="relative w-full aspect-[3/4] overflow-hidden"
               >
                 <Image
-                  src="/images/bundle1.png"
+                  src={item.image || "/images/bundle1.png"}
                   alt={item.name}
                   fill
                   className="object-cover"
@@ -60,10 +71,10 @@ export default function BundlesPage() {
                     className="bg-[#800020] text-white px-6 py-1 uppercase text-sm rounded hover:bg-[#660018] transition"
                     onClick={() =>
                       addToCart({
-                        id: index.toString(),
+                        id: item._id,
                         name: item.name,
                         price: item.price,
-                        image: "/images/bundle1.png",
+                        image: item.image || "/images/bundle1.png",
                       })
                     }
                   >
@@ -73,10 +84,10 @@ export default function BundlesPage() {
                     className="border border-[#800020] text-[#800020] px-6 py-1 uppercase text-sm rounded hover:bg-[#660018] hover:text-white transition"
                     onClick={() =>
                       addToCart({
-                        id: index.toString(),
+                        id: item._id,
                         name: item.name,
                         price: item.price,
-                        image: "/images/bundle1.png",
+                        image: item.image || "/images/bundle1.png",
                       })
                     }
                   >

@@ -12,36 +12,36 @@ interface Product {
   image?: string;
 }
 
-export default function AccessoriesPage() {
+export default function HairProductsPage() {
   const { addToCart } = useCart();
-  const [accessories, setAccessories] = useState<Product[]>([]);
+  const [hairProducts, setHairProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     async function fetchProducts() {
-      const res = await fetch("/api/products?category=accessories");
+      const res = await fetch("/api/products?category=hairproducts");
       const data = await res.json();
-      setAccessories(data);
+      setHairProducts(data);
     }
     fetchProducts();
   }, []);
 
   return (
     <main className="bg-white text-black pt-40 pb-20">
+      {/* Banner */}
+      <section className="bg-[#800020] text-white text-center py-6 mb-12">
+        <h2 className="text-3xl font-bold uppercase">20% Off All Hair Care</h2>
+        <p className="text-sm mt-2">
+          Limited time offer on shampoos, conditioners & oils!
+        </p>
+      </section>
+
       <section className="container mx-auto px-6">
         <h1 className="text-3xl font-semibold text-center mb-10 uppercase">
-          Accessories
+          Hair Products
         </h1>
 
-        <div className="flex justify-center mb-10">
-          <input
-            type="text"
-            placeholder="Search accessories..."
-            className="w-full md:w-2/3 border-b border-black text-center py-2 focus:outline-none"
-          />
-        </div>
-
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20">
-          {accessories.map((item) => (
+          {hairProducts.map((item) => (
             <div
               key={item._id}
               className="flex flex-col items-center text-center border border-gray-200 shadow-sm hover:shadow-md transition bg-white rounded-lg overflow-hidden"
@@ -51,10 +51,10 @@ export default function AccessoriesPage() {
                 className="relative w-full aspect-[3/4] overflow-hidden"
               >
                 <div className="absolute top-2 right-2 bg-[#800020] text-white text-xs font-semibold px-2 py-1 rounded-full z-10">
-                  20% OFF
+                  SALE
                 </div>
                 <Image
-                  src={item.image || "/images/accessories1.jpg"}
+                  src={item.image || "/images/shampoo1.jpg"}
                   alt={item.name}
                   fill
                   className="object-cover"
@@ -77,7 +77,7 @@ export default function AccessoriesPage() {
                         id: item._id,
                         name: item.name,
                         price: item.price,
-                        image: item.image || "/images/accessories1.jpg",
+                        image: item.image || "/images/shampoo1.jpg",
                       })
                     }
                   >
@@ -90,7 +90,7 @@ export default function AccessoriesPage() {
                         id: item._id,
                         name: item.name,
                         price: item.price,
-                        image: item.image || "/images/accessories1.jpg",
+                        image: item.image || "/images/shampoo1.jpg",
                       })
                     }
                   >

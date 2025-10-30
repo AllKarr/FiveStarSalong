@@ -78,22 +78,6 @@ export default function ProfilePage() {
               className="w-full border border-black px-2 py-1 text-sm focus:outline-none"
             />
             <input
-              name="name"
-              type="text"
-              placeholder="Name"
-              value={form.name}
-              onChange={handleChange}
-              className="w-full border border-black px-2 py-1 text-sm focus:outline-none"
-            />
-            <input
-              name="surname"
-              type="text"
-              placeholder="Surname"
-              value={form.surname}
-              onChange={handleChange}
-              className="w-full border border-black px-2 py-1 text-sm focus:outline-none"
-            />
-            <input
               name="currentPassword"
               type="password"
               placeholder="Current Password"

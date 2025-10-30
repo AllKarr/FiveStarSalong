@@ -11,10 +11,11 @@ export default function Header() {
   const { openCart } = useCart();
   const { data: session, status } = useSession();
 
+  // 🧭 Add your correct nav structure here
   const navItems = [
     { href: "/bundles", label: "Bundles" },
     { href: "/extensions", label: "Extensions" },
-    { href: "/products", label: "Products" },
+    { href: "/hairproducts", label: "Hair Products" }, // ✅ added this
     { href: "/accessories", label: "Accessories" },
   ];
 
@@ -38,10 +39,7 @@ export default function Header() {
       <div className="bg-black text-white shadow-md">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           {/* Logo */}
-          <Link
-            href="/"
-            className="flex items-center gap-2 font-bold text-xl tracking-wide"
-          >
+          <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-wide">
             <span className="text-3xl">5</span>
             <span>SALONG</span>
           </Link>
@@ -68,10 +66,7 @@ export default function Header() {
                   d="M5.121 17.804A9 9 0 1118.88 17.8M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                 />
               </svg>
-              {/* Show username if logged in */}
-              {isLoggedIn && (
-                <span className="text-sm font-medium">{userName}</span>
-              )}
+              {isLoggedIn && <span className="text-sm font-medium">{userName}</span>}
             </Link>
 
             {/* 🛒 Cart Icon */}

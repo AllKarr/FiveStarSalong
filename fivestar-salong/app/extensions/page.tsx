@@ -2,17 +2,28 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/components/CartProvider";
+import { useEffect, useState } from "react";
+
+interface Product {
+  _id: string;
+  name: string;
+  category: string;
+  price: number;
+  image?: string;
+}
 
 export default function ExtensionsPage() {
   const { addToCart } = useCart();
+  const [extensions, setExtensions] = useState<Product[]>([]);
 
-  // Repeat same image 8 times (you can replace later with backend)
-  const extensions = Array(8).fill({
-    id: "1",
-    name: "Luxury Straight",
-    category: "Human Hair",
-    price: 120,
-  });
+  useEffect(() => {
+    async function fetchProducts() {
+      const res = await fetch("/api/products?category=extensions");
+      const data = await res.json();
+      setExtensions(data);
+    }
+    fetchProducts();
+  }, []);
 
   return (
     <main className="bg-white text-black pt-40 pb-20">
@@ -30,17 +41,17 @@ export default function ExtensionsPage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20">
-          {extensions.map((item, index) => (
+          {extensions.map((item) => (
             <div
-              key={index}
+              key={item._id}
               className="flex flex-col items-center text-center border border-gray-200 shadow-sm hover:shadow-md transition bg-white rounded-lg overflow-hidden"
             >
               <Link
-                href="/singleproduct"
+                href={`/products/${item._id}`}
                 className="relative w-full aspect-[3/4] overflow-hidden"
               >
                 <Image
-                  src="/images/extension1.png"
+                  src={item.image || "/images/extension1.png"}
                   alt={item.name}
                   fill
                   className="object-cover"
@@ -54,16 +65,16 @@ export default function ExtensionsPage() {
 
                 <div
                   className="flex flex-col items-center gap-2 mt-3"
-                  onClick={(e) => e.stopPropagation()} // prevent link navigation
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <button
                     className="bg-[#800020] text-white px-6 py-1 uppercase text-sm rounded hover:bg-[#660018] transition"
                     onClick={() =>
                       addToCart({
-                        id: index.toString(),
+                        id: item._id,
                         name: item.name,
                         price: item.price,
-                        image: "/images/extension1.png",
+                        image: item.image || "/images/extension1.png",
                       })
                     }
                   >
@@ -73,10 +84,10 @@ export default function ExtensionsPage() {
                     className="border border-[#800020] text-[#800020] px-6 py-1 uppercase text-sm rounded hover:bg-[#660018] hover:text-white transition"
                     onClick={() =>
                       addToCart({
-                        id: index.toString(),
+                        id: item._id,
                         name: item.name,
                         price: item.price,
-                        image: "/images/extension1.png",
+                        image: item.image || "/images/extension1.png",
                       })
                     }
                   >

@@ -1,7 +1,13 @@
 export interface User {
   _id?: string;
+  email: string;
   name: string;
   surname: string;
-  email: string;
-  password: string; // hashed
+  password: string;
+  role: "user" | "admin" | "moderator";
+  address?: string;
+  phone?: string;
+  flagged?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }

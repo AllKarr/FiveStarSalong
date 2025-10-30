@@ -7,14 +7,34 @@ export default function ProductsPage() {
   const { addToCart } = useCart();
 
   const products = [
-    { id: "1", name: "Name", category: "Category", price: 120 },
-    { id: "2", name: "Name", category: "Category", price: 140 },
-    { id: "3", name: "Name", category: "Category", price: 160 },
-    { id: "4", name: "Name", category: "Category", price: 130 },
-    { id: "5", name: "Name", category: "Category", price: 150 },
-    { id: "6", name: "Name", category: "Category", price: 125 },
-    { id: "7", name: "Name", category: "Category", price: 110 },
-    { id: "8", name: "Name", category: "Category", price: 100 },
+    {
+      id: "1",
+      name: "Luxury Straight",
+      category: "Human Hair",
+      price: 120,
+      image: "/images/extension1.png",
+    },
+    {
+      id: "2",
+      name: "Silky Wave",
+      category: "Remy Hair",
+      price: 140,
+      image: "/images/extension2.png",
+    },
+    {
+      id: "3",
+      name: "Curly Queen",
+      category: "Virgin Hair",
+      price: 160,
+      image: "/images/extension3.png",
+    },
+    {
+      id: "4",
+      name: "Deep Wave",
+      category: "Human Hair",
+      price: 130,
+      image: "/images/extension4.png",
+    },
   ];
 
   return (
@@ -38,9 +58,9 @@ export default function ProductsPage() {
               key={item.id}
               className="flex flex-col items-center text-center border border-gray-200 shadow-sm hover:shadow-md transition relative bg-white"
             >
-              {/* Clickable image that links to singleproduct */}
+              {/*  FIXED: Each product links to its own demo single-product page */}
               <Link
-                href="/singleproduct"
+                href={`/products/${item.id}?demo=true`}
                 className="relative w-full aspect-[3/4] overflow-hidden block"
               >
                 <div className="absolute top-2 right-2 bg-[#800020] text-white text-xs font-semibold px-2 py-1 rounded-full z-10">
@@ -48,7 +68,7 @@ export default function ProductsPage() {
                 </div>
 
                 <Image
-                  src="/images/product1.jpeg"
+                  src={item.image}
                   alt={item.name}
                   fill
                   className="object-cover"
@@ -69,7 +89,7 @@ export default function ProductsPage() {
                         id: item.id,
                         name: item.name,
                         price: item.price,
-                        image: "/images/product1.jpeg",
+                        image: item.image,
                       })
                     }
                   >
@@ -83,7 +103,7 @@ export default function ProductsPage() {
                         id: item.id,
                         name: item.name,
                         price: item.price,
-                        image: "/images/product1.jpeg",
+                        image: item.image,
                       })
                     }
                   >

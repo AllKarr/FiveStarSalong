@@ -31,7 +31,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white`}
       >
-        {/* ✅ Wrap client providers in a separate Client Component */}
+        {/*  Wrap client providers in a separate Client Component */}
         <Providers>
           <Header />
           <main className="min-h-screen">{children}</main>
