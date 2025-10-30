@@ -16,6 +16,34 @@ export default function CartDrawer() {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [closeCart]);
 
+  // ✅ Stripe checkout handler
+  const handleCheckout = async () => {
+    if (items.length === 0) return;
+
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items,       // ✅ matches backend name
+          userId: "guest", // or replace with logged-in user ID if available
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.url) {
+        window.location.href = data.url; // ✅ Redirect to Stripe Checkout
+      } else {
+        console.error("Checkout failed:", data);
+        alert("Failed to initiate checkout. Please try again.");
+      }
+    } catch (err) {
+      console.error("Checkout error:", err);
+      alert("Something went wrong during checkout.");
+    }
+  };
+
   return (
     <div
       className={`fixed inset-0 z-[9999] transition-all duration-300 ${
@@ -117,6 +145,7 @@ export default function CartDrawer() {
         {/* Footer */}
         <div className="border-t border-[#660018] p-6 mt-auto bg-[#000]/10 backdrop-blur-md">
           <button
+            onClick={handleCheckout}
             disabled={items.length === 0}
             className={`w-full py-3 font-semibold text-sm uppercase rounded transition tracking-wide ${
               items.length === 0

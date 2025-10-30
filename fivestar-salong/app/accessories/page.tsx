@@ -50,9 +50,6 @@ export default function AccessoriesPage() {
                 href={`/products/${item._id}`}
                 className="relative w-full aspect-[3/4] overflow-hidden"
               >
-                <div className="absolute top-2 right-2 bg-[#800020] text-white text-xs font-semibold px-2 py-1 rounded-full z-10">
-                  20% OFF
-                </div>
                 <Image
                   src={item.image || "/images/accessories1.jpg"}
                   alt={item.name}

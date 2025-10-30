@@ -29,7 +29,7 @@ export default function HairProductsPage() {
     <main className="bg-white text-black pt-40 pb-20">
       {/* Banner */}
       <section className="bg-[#800020] text-white text-center py-6 mb-12">
-        <h2 className="text-3xl font-bold uppercase">20% Off All Hair Care</h2>
+        <h2 className="text-3xl font-bold uppercase">20% Off All Hair Products</h2>
         <p className="text-sm mt-2">
           Limited time offer on shampoos, conditioners & oils!
         </p>
@@ -39,6 +39,14 @@ export default function HairProductsPage() {
         <h1 className="text-3xl font-semibold text-center mb-10 uppercase">
           Hair Products
         </h1>
+
+        <div className="flex justify-center mb-10">
+          <input
+            type="text"
+            placeholder="Search Hair Products..."
+            className="w-full md:w-2/3 border-b border-black text-center py-2 focus:outline-none"
+          />
+        </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20">
           {hairProducts.map((item) => (

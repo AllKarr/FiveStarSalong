@@ -11,15 +11,14 @@ export default function Header() {
   const { openCart } = useCart();
   const { data: session, status } = useSession();
 
-  // 🧭 Add your correct nav structure here
   const navItems = [
     { href: "/bundles", label: "Bundles" },
     { href: "/extensions", label: "Extensions" },
-    { href: "/hairproducts", label: "Hair Products" }, // ✅ added this
+    { href: "/hairproducts", label: "Hair Products" },
     { href: "/accessories", label: "Accessories" },
   ];
 
-  // Hide nav when scrolling down
+  // handle scroll hide/show
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > lastScrollY) setShowSticky(false);
@@ -32,10 +31,17 @@ export default function Header() {
 
   const isLoggedIn = status === "authenticated";
   const userName = session?.user?.name?.split(" ")[0] || "Profile";
+  const isAdmin = session?.user?.role === "admin";
+
+  const accountLink = isAdmin
+    ? "/admin"
+    : isLoggedIn
+    ? "/profile"
+    : "/login";
 
   return (
     <header className="fixed top-0 left-0 w-full z-50">
-      {/* 🔝 Top Bar */}
+      {/* Top Bar */}
       <div className="bg-black text-white shadow-md">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           {/* Logo */}
@@ -46,68 +52,49 @@ export default function Header() {
 
           {/* Icons */}
           <div className="flex items-center gap-6">
-            {/* 👤 Profile Icon */}
+            {/* Account */}
             <Link
-              href={isLoggedIn ? "/profile" : "/login"}
-              className="hover:text-gray-200 transition-colors flex items-center gap-2"
-              title={isLoggedIn ? "Go to Profile" : "Login"}
+              href={accountLink}
+              className="flex items-center gap-2 hover:text-gray-200 transition"
+              title={isLoggedIn ? "Account" : "Login"}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5.121 17.804A9 9 0 1118.88 17.8M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-              {isLoggedIn && <span className="text-sm font-medium">{userName}</span>}
+              {/* simple user icon */}
+              <div className="w-6 h-6 border-2 border-current rounded-full flex items-center justify-center">
+                <div className="w-2 h-2 bg-current rounded-full"></div>
+              </div>
+              {isLoggedIn && (
+                <span className="text-sm font-medium">{userName}</span>
+              )}
             </Link>
 
-            {/* 🛒 Cart Icon */}
+            {/* Cart */}
             <button
               onClick={openCart}
-              className="hover:text-gray-200 transition-colors"
+              className="relative hover:text-gray-200 transition"
               aria-label="Open cart"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.2 6H18m-6 0a1 1 0 100 2 1 1 0 000-2zm-4 0a1 1 0 100 2 1 1 0 000-2z"
-                />
-              </svg>
+              <div className="w-6 h-6 border-2 border-current rounded-sm flex items-center justify-center">
+                <div className="w-3 h-3 border border-current border-b-0 border-l-0 rotate-45 translate-y-[2px]" />
+              </div>
             </button>
           </div>
         </div>
       </div>
 
-      {/* 🧭 Sticky Navigation */}
+      {/* Sticky Nav */}
       <div
         className={`bg-[#660018] text-white transition-transform duration-300 ${
           showSticky ? "translate-y-0" : "-translate-y-full"
         }`}
       >
         <div className="container mx-auto flex items-center justify-between px-6 py-3">
-          {/* Desktop Nav */}
+          {/* Desktop nav */}
           <nav className="hidden md:flex gap-10 text-sm font-medium">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="relative group pb-1 transition-colors duration-200"
+                className="relative group pb-1 transition-colors"
               >
                 {item.label}
                 <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-[#D4AF37] transition-all duration-300 group-hover:w-full"></span>
@@ -115,7 +102,7 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile menu */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="md:hidden text-2xl"
@@ -125,7 +112,6 @@ export default function Header() {
           </button>
         </div>
 
-        {/* Mobile Menu */}
         {menuOpen && (
           <div className="md:hidden bg-[#800020] px-6 py-4 space-y-3">
             {navItems.map((item) => (
@@ -133,7 +119,7 @@ export default function Header() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setMenuOpen(false)}
-                className="block hover:text-[#D4AF37] transition-colors"
+                className="block hover:text-[#D4AF37]"
               >
                 {item.label}
               </Link>
