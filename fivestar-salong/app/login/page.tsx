@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { signIn, getSession } from "next-auth/react";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -10,20 +10,28 @@ export default function LoginPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const res = await signIn("credentials", {
-      redirect: false,
-      email: form.email,
-      password: form.password,
-    });
+  const res = await signIn("credentials", {
+    redirect: false,
+    email: form.email,
+    password: form.password,
+  });
 
-    if (res?.error) {
-      alert(res.error);
-    } else {
-      window.location.href = "/";
-    }
-  };
+  if (res?.error) {
+    alert("Invalid email or password");
+    return;
+  }
+
+  // Wait for NextAuth to update session
+  const session = await getSession();
+
+  if (session?.user?.role === "admin") {
+    window.location.href = "/admin";
+  } else {
+    window.location.href = "/profile";
+  }
+};
 
   return (
     <main className="pt-80 pb-20 bg-white text-center min-h-screen">
