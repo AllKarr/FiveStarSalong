@@ -45,11 +45,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.user = user;
+      // When user first signs in
+      if (user) {
+        token.user = {
+          id: (user as any).id,
+          name: (user as any).name,
+          email: (user as any).email,
+          role: (user as any).role,
+        };
+      }
       return token;
     },
+
     async session({ session, token }) {
-      if (token.user) session.user = token.user as any;
+      if (token.user) {
+        session.user = token.user as any;
+        // ensure id is always available
+        if (!session.user.id && (token.user as any).id) {
+          session.user.id = (token.user as any).id;
+        }
+      }
       return session;
     },
   },

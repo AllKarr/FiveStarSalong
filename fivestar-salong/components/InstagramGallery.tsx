@@ -5,7 +5,7 @@ import Image from "next/image";
  * Instagram gallery with one video on each side (same height, no react-icons).
  */
 export default function InstagramGallery() {
-  const instagramLink = "https://www.instagram.com/fivestarsalong"; // update with your link
+  const instagramLink = "https://www.instagram.com/5star.salong"; // update with your link
   const images = Array.from({ length: 8 }, (_, i) => i + 1);
 
   return (

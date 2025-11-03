@@ -16,7 +16,7 @@ interface Product {
 
 export default function ProductSection() {
   const { addToCart } = useCart();
-  const [timeLeft, setTimeLeft] = useState("03:00:00");
+  const [timeLeft, setTimeLeft] = useState("00:00:00");
   const [extensions, setExtensions] = useState<Product[]>([]);
 
   // Fetch best rated extensions from DB
@@ -29,22 +29,53 @@ export default function ProductSection() {
     fetchProducts();
   }, []);
 
-  // Countdown Timer
+  // Persistent daily discount countdown (resets at midnight)
   useEffect(() => {
-    let totalSeconds = 3 * 60 * 60;
-    const timer = setInterval(() => {
-      totalSeconds--;
-      if (totalSeconds <= 0) {
-        clearInterval(timer);
-        setTimeLeft("00:00:00");
-      } else {
-        const h = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
-        const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
-        const s = String(totalSeconds % 60).padStart(2, "0");
-        setTimeLeft(`${h}:${m}:${s}`);
+    const getMidnight = () => {
+      const midnight = new Date();
+      midnight.setHours(24, 0, 0, 0); // next midnight
+      return midnight.getTime();
+    };
+
+    const storedEndTime = localStorage.getItem("discountEndTime");
+    let endTime: number;
+
+    if (storedEndTime) {
+      endTime = parseInt(storedEndTime, 10);
+
+      // If current time passed midnight, reset for next day
+      if (Date.now() > endTime) {
+        endTime = getMidnight();
+        localStorage.setItem("discountEndTime", endTime.toString());
       }
-    }, 1000);
-    return () => clearInterval(timer);
+    } else {
+      endTime = getMidnight();
+      localStorage.setItem("discountEndTime", endTime.toString());
+    }
+
+    const updateTimer = () => {
+      const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+      const hours = Math.floor(remaining / 3600);
+      const minutes = Math.floor((remaining % 3600) / 60);
+      const seconds = remaining % 60;
+
+      setTimeLeft(
+        `${hours.toString().padStart(2, "0")}:${minutes
+          .toString()
+          .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+      );
+
+      // Reset automatically after midnight passes
+      if (remaining <= 0) {
+        const newEnd = getMidnight();
+        localStorage.setItem("discountEndTime", newEnd.toString());
+      }
+    };
+
+    updateTimer(); // run immediately
+    const interval = setInterval(updateTimer, 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -52,7 +83,12 @@ export default function ProductSection() {
       {/* === DISCOUNT BANNER === */}
       <div className="relative bg-[#800020] text-white overflow-hidden mt-8 rounded-lg mx-4 shadow-md">
         <div className="absolute inset-0 opacity-15">
-          <Image src="/images/discount-bg.jpg" alt="discount background" fill className="object-cover" />
+          <Image
+            src="/images/discount-bg.jpg"
+            alt="discount background"
+            fill
+            className="object-cover"
+          />
         </div>
 
         <div className="relative max-w-[1000px] mx-auto px-6 py-10 text-center">
@@ -144,6 +180,7 @@ export default function ProductSection() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Hair Products */}
             <Link
               href="/hairproducts"
               className="relative group rounded-lg overflow-hidden shadow-md aspect-[4/3]"
@@ -154,11 +191,17 @@ export default function ProductSection() {
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                <p className="text-white text-2xl font-bold">Hair Products</p>
+              <div
+                className="absolute inset-0 bg-black/60 flex items-center justify-center 
+                opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-500"
+              >
+                <p className="text-white text-xl sm:text-2xl font-bold text-center px-2">
+                  Hair Products
+                </p>
               </div>
             </Link>
 
+            {/* Accessories */}
             <Link
               href="/accessories"
               className="relative group rounded-lg overflow-hidden shadow-md aspect-[4/3]"
@@ -169,8 +212,13 @@ export default function ProductSection() {
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                <p className="text-white text-2xl font-bold">Accessories</p>
+              <div
+                className="absolute inset-0 bg-black/60 flex items-center justify-center 
+                opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-500"
+              >
+                <p className="text-white text-xl sm:text-2xl font-bold text-center px-2">
+                  Accessories
+                </p>
               </div>
             </Link>
           </div>

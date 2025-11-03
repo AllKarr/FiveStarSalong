@@ -28,7 +28,7 @@ export default function HeroSection() {
             your natural beauty with style and confidence.
           </p>
           <a
-            href="#about"
+            href="/about"
             className="inline-block bg-primary text-white px-8 py-3 rounded-md font-semibold hover:bg-[#660018] transition-colors shadow-md"
           >
             About Us

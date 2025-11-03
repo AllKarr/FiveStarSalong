@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/components/CartProvider";
 import { useSession } from "next-auth/react";
+import { User, ShoppingCart } from "lucide-react";
+
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -52,31 +54,26 @@ export default function Header() {
 
           {/* Icons */}
           <div className="flex items-center gap-6">
-            {/* Account */}
-            <Link
-              href={accountLink}
-              className="flex items-center gap-2 hover:text-gray-200 transition"
-              title={isLoggedIn ? "Account" : "Login"}
-            >
-              {/* simple user icon */}
-              <div className="w-6 h-6 border-2 border-current rounded-full flex items-center justify-center">
-                <div className="w-2 h-2 bg-current rounded-full"></div>
-              </div>
-              {isLoggedIn && (
-                <span className="text-sm font-medium">{userName}</span>
-              )}
-            </Link>
+          {/* Account */}
+          <Link
+            href={accountLink}
+            className="flex items-center gap-2 hover:text-gray-200 transition"
+            title={isLoggedIn ? "Account" : "Login"}
+          >
+            <User className="w-6 h-6" />
+            {isLoggedIn && (
+              <span className="text-sm font-medium">{userName}</span>
+            )}
+          </Link>
 
-            {/* Cart */}
-            <button
-              onClick={openCart}
-              className="relative hover:text-gray-200 transition"
-              aria-label="Open cart"
-            >
-              <div className="w-6 h-6 border-2 border-current rounded-sm flex items-center justify-center">
-                <div className="w-3 h-3 border border-current border-b-0 border-l-0 rotate-45 translate-y-[2px]" />
-              </div>
-            </button>
+          {/* Cart */}
+          <button
+            onClick={openCart}
+            className="relative hover:text-gray-200 transition"
+            aria-label="Open cart"
+          >
+            <ShoppingCart className="w-6 h-6" />
+          </button>
           </div>
         </div>
       </div>

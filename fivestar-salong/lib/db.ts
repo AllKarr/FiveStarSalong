@@ -1,21 +1,39 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { MongoClient } from "mongodb";
+ import { MongoClient, ServerApiVersion } from "mongodb";
 
-const uri = process.env.MONGODB_URI!;
-const options = {};
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+  throw new Error("❌ Please add your Mongo URI to .env.local (MONGODB_URI)");
+}
 
-if (!uri) throw new Error("Please add your Mongo URI to .env.local");
+/**
+ * MongoDB Client Options
+ * Uses Server API v1 (recommended for stability with MongoDB Atlas)
+ */
+const options = {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+};
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
+// In development, use a global variable so the client isn’t recreated on every hot reload.
 if (process.env.NODE_ENV === "development") {
-  if (!(global as any)._mongoClientPromise) {
+  const globalWithMongo = global as typeof globalThis & {
+    _mongoClientPromise?: Promise<MongoClient>;
+  };
+
+  if (!globalWithMongo._mongoClientPromise) {
     client = new MongoClient(uri, options);
-    (global as any)._mongoClientPromise = client.connect();
+    globalWithMongo._mongoClientPromise = client.connect();
   }
-  clientPromise = (global as any)._mongoClientPromise;
+
+  clientPromise = globalWithMongo._mongoClientPromise!;
 } else {
+  // In production, create a new client
   client = new MongoClient(uri, options);
   clientPromise = client.connect();
 }
