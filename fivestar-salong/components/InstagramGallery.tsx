@@ -22,7 +22,7 @@ export default function InstagramGallery() {
         {/* LEFT VIDEO */}
         <div className="relative hidden lg:block overflow-hidden rounded-lg w-1/5">
           <video
-            src="/videos/left.mov"
+            src="/videos/left.mp4"
             autoPlay
             loop
             muted
@@ -74,7 +74,7 @@ export default function InstagramGallery() {
         {/* RIGHT VIDEO */}
         <div className="relative hidden lg:block overflow-hidden rounded-lg w-1/5">
           <video
-            src="/videos/right.mov"
+            src="/videos/right.mp4"
             autoPlay
             loop
             muted
