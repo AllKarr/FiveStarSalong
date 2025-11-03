@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-// Define the expected token shape
 interface CustomToken {
   user?: {
     role?: string;
@@ -10,22 +9,28 @@ interface CustomToken {
 }
 
 export async function middleware(req: NextRequest) {
+  const url = req.nextUrl.clone();
+
+  // Optional debug: log when no token is found
+  console.log("Middleware URL:", url.pathname);
+
   const token = (await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
-  })) as unknown as CustomToken | null;
+    secureCookie: process.env.NODE_ENV === "production",
+  })) as CustomToken | null;
 
-  const { pathname } = req.nextUrl;
-
-  // Protect admin and profile routes
-  if (pathname.startsWith("/admin") || pathname.startsWith("/profile")) {
+  // If we didn’t get a token, user is not logged in
+  if (url.pathname.startsWith("/admin") || url.pathname.startsWith("/profile")) {
     if (!token) {
-      return NextResponse.redirect(new URL("/login", req.url));
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
     }
 
     const role = token.user?.role;
-    if (pathname.startsWith("/admin") && role !== "admin") {
-      return NextResponse.redirect(new URL("/", req.url));
+    if (url.pathname.startsWith("/admin") && role !== "admin") {
+      url.pathname = "/";
+      return NextResponse.redirect(url);
     }
   }
 
