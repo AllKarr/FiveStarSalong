@@ -3,20 +3,21 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import clientPromise from "@/lib/db";
 
+export const runtime = "nodejs"; // Must run on Node, not edge
+export const dynamic = "force-dynamic";
+
+// Disable Next.js body parsing for this route
 export const config = {
   api: {
-    bodyParser: false, // ✅ Required for Stripe signature verification
+    bodyParser: false,
   },
 };
 
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-export const preferredRegion = "auto";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2024-06-20" as any,
+});
 
 export async function POST(req: Request) {
-  const body = await req.text();
   const sig = req.headers.get("stripe-signature");
 
   if (!sig) {
@@ -24,51 +25,50 @@ export async function POST(req: Request) {
     return new NextResponse("Missing Stripe signature", { status: 400 });
   }
 
+  let event: Stripe.Event;
+
   try {
-    const event = stripe.webhooks.constructEvent(
-      body,
+    // Get raw body (required for signature verification)
+    const rawBody = await req.text();
+
+    event = stripe.webhooks.constructEvent(
+      rawBody,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
+  } catch (err: any) {
+    console.error("❌ Webhook signature verification failed:", err.message);
+    return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
+  }
 
-    console.log(`📦 Received event: ${event.type}`);
+  // Handle successful checkout sessions
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
 
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object as Stripe.Checkout.Session;
-
+    try {
       const userId = session.metadata?.userId || "guest";
       const rawProducts = session.metadata?.products || "[]";
-
-      let products: any[] = [];
-      try {
-        products = JSON.parse(rawProducts);
-      } catch {
-        console.warn("⚠️ Could not parse products metadata:", rawProducts);
-      }
-
-      const totalPrice = session.amount_total ? session.amount_total / 100 : 0;
+      const products = JSON.parse(rawProducts);
+      const totalPrice = (session.amount_total || 0) / 100;
 
       const client = await clientPromise;
       const db = client.db("fivestar");
 
-      const orderDoc = {
+      const order = {
         user: userId,
-        product: products.map((p) => p.productId).join(", "),
-        quantity: products.reduce((sum, p) => sum + (p.quantity || 0), 0),
+        products,
         totalPrice,
         paymentMethod: "card",
-        deliveryMethod: "standard",
         status: "completed",
         purchasedAt: new Date(),
       };
 
-      await db.collection("orders").insertOne(orderDoc);
+      await db.collection("orders").insertOne(order);
       console.log("✅ Order saved for user:", userId);
+    } catch (err: any) {
+      console.error("❌ Failed to save order:", err.message);
     }
-
-    return NextResponse.json({ received: true });
-  } catch (err: any) {
-    console.error("❌ Webhook Error:", err.message);
-    return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
   }
+
+  return NextResponse.json({ received: true });
 }
