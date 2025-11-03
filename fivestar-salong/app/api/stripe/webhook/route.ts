@@ -3,13 +3,17 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import clientPromise from "@/lib/db";
 
+export const config = {
+  api: {
+    bodyParser: false, // ✅ Required for Stripe signature verification
+  },
+};
+
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const preferredRegion = "auto";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-10-29.clover",
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -27,19 +31,18 @@ export async function POST(req: Request) {
       process.env.STRIPE_WEBHOOK_SECRET!
     );
 
-    // Only handle successful payments
+    console.log(`📦 Received event: ${event.type}`);
+
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
 
-      // Consistent field names
       const userId = session.metadata?.userId || "guest";
       const rawProducts = session.metadata?.products || "[]";
 
       let products: any[] = [];
       try {
         products = JSON.parse(rawProducts);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (err) {
+      } catch {
         console.warn("⚠️ Could not parse products metadata:", rawProducts);
       }
 
@@ -49,7 +52,7 @@ export async function POST(req: Request) {
       const db = client.db("fivestar");
 
       const orderDoc = {
-        user: userId, // Matches your Order model
+        user: userId,
         product: products.map((p) => p.productId).join(", "),
         quantity: products.reduce((sum, p) => sum + (p.quantity || 0), 0),
         totalPrice,
@@ -60,12 +63,12 @@ export async function POST(req: Request) {
       };
 
       await db.collection("orders").insertOne(orderDoc);
-      console.log(" Order saved for user:", userId);
+      console.log("✅ Order saved for user:", userId);
     }
 
     return NextResponse.json({ received: true });
   } catch (err: any) {
-    console.error(" Webhook Error:", err.message);
+    console.error("❌ Webhook Error:", err.message);
     return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
   }
 }
