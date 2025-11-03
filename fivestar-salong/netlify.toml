@@ -1,0 +1,10 @@
+[build]
+  command = "next build"
+  publish = ".next"
+  functions = ".netlify/functions"
+
+[functions]
+  included_files = ["next.config.js", "package.json"]
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

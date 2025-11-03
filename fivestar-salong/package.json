@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.11.1",
+    "@netlify/next": "^1.4.9",
     "bcryptjs": "^3.0.2",
     "lucide-react": "^0.552.0",
     "mongodb": "^6.9.0",
@@ -23,6 +24,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.14.4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

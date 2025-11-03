@@ -2,18 +2,23 @@ import { NextResponse } from "next/server";
 import clientPromise from "@/lib/db";
 import { ObjectId } from "mongodb";
 
+// Compatible with both dev & build
 export async function GET(
   req: Request,
-  context: { params: Promise<{ id: string }> } // 👈 now Promise
+  context: { params: { id: string } } | { params: Promise<{ id: string }> }
 ) {
   try {
     const client = await clientPromise;
     const db = client.db("fivestar");
 
-    //  unwrap the params
-    const { id } = await context.params;
+    // Handle both direct and Promise-based params
+    const params =
+      "then" in context.params
+        ? await context.params
+        : (context.params as { id: string });
 
-    //  validate and query
+    const { id } = params;
+
     if (!ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });
     }
