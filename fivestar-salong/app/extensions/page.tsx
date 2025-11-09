@@ -15,6 +15,7 @@ interface Product {
 export default function ExtensionsPage() {
   const { addToCart } = useCart();
   const [extensions, setExtensions] = useState<Product[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     async function fetchProducts() {
@@ -24,6 +25,10 @@ export default function ExtensionsPage() {
     }
     fetchProducts();
   }, []);
+
+  const filteredExtensions = extensions.filter((item) =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <main className="bg-white text-black pt-40 pb-20">
@@ -36,67 +41,75 @@ export default function ExtensionsPage() {
           <input
             type="text"
             placeholder="Search extensions..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full md:w-2/3 border-b border-black text-center py-2 focus:outline-none"
           />
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20">
-          {extensions.map((item) => (
-            <div
-              key={item._id}
-              className="flex flex-col items-center text-center border border-gray-200 shadow-sm hover:shadow-md transition bg-white rounded-lg overflow-hidden"
-            >
-              <Link
-                href={`/products/${item._id}`}
-                className="relative w-full aspect-[3/4] overflow-hidden"
+          {filteredExtensions.length > 0 ? (
+            filteredExtensions.map((item) => (
+              <div
+                key={item._id}
+                className="flex flex-col items-center text-center border border-gray-200 shadow-sm hover:shadow-md transition bg-white rounded-lg overflow-hidden"
               >
-                <Image
-                  src={item.image || "/images/extension1.png"}
-                  alt={item.name}
-                  fill
-                  className="object-cover"
-                />
-              </Link>
-
-              <div className="bg-white w-full py-3">
-                <h3 className="font-semibold">{item.name}</h3>
-                <p className="text-sm text-gray-600">{item.category}</p>
-                <p className="text-sm mt-1 font-medium">${item.price}</p>
-
-                <div
-                  className="flex flex-col items-center gap-2 mt-3"
-                  onClick={(e) => e.stopPropagation()}
+                <Link
+                  href={`/products/${item._id}`}
+                  className="relative w-full aspect-[3/4] overflow-hidden"
                 >
-                  <button
-                    className="bg-[#800020] text-white px-6 py-1 uppercase text-sm rounded hover:bg-[#660018] transition"
-                    onClick={() =>
-                      addToCart({
-                        id: item._id,
-                        name: item.name,
-                        price: item.price,
-                        image: item.image || "/images/extension1.png",
-                      })
-                    }
+                  <Image
+                    src={item.image || "/images/extension1.png"}
+                    alt={item.name}
+                    fill
+                    className="object-cover"
+                  />
+                </Link>
+
+                <div className="bg-white w-full py-3">
+                  <h3 className="font-semibold">{item.name}</h3>
+                  <p className="text-sm text-gray-600">{item.category}</p>
+                  <p className="text-sm mt-1 font-medium">${item.price}</p>
+
+                  <div
+                    className="flex flex-col items-center gap-2 mt-3"
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    Buy Now
-                  </button>
-                  <button
-                    className="border border-[#800020] text-[#800020] px-6 py-1 uppercase text-sm rounded hover:bg-[#660018] hover:text-white transition"
-                    onClick={() =>
-                      addToCart({
-                        id: item._id,
-                        name: item.name,
-                        price: item.price,
-                        image: item.image || "/images/extension1.png",
-                      })
-                    }
-                  >
-                    Add to Cart
-                  </button>
+                    <button
+                      className="bg-[#800020] text-white px-6 py-1 uppercase text-sm rounded hover:bg-[#660018] transition"
+                      onClick={() =>
+                        addToCart({
+                          id: item._id,
+                          name: item.name,
+                          price: item.price,
+                          image: item.image || "/images/extension1.png",
+                        })
+                      }
+                    >
+                      Buy Now
+                    </button>
+                    <button
+                      className="border border-[#800020] text-[#800020] px-6 py-1 uppercase text-sm rounded hover:bg-[#660018] hover:text-white transition"
+                      onClick={() =>
+                        addToCart({
+                          id: item._id,
+                          name: item.name,
+                          price: item.price,
+                          image: item.image || "/images/extension1.png",
+                        })
+                      }
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-center col-span-full text-gray-500">
+              No extensions found.
+            </p>
+          )}
         </div>
       </section>
     </main>
