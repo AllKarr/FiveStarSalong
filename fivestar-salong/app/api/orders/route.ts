@@ -15,34 +15,34 @@ export async function GET() {
   const client = await clientPromise;
   const db = client.db("fivestar");
 
-  // Use `userId` to match what’s stored in the database
   const orders = await db
     .collection("orders")
-    .find({ userId: session.user.id })
-    .sort({ createdAt: -1 })
+    .find({ user: session.user.id })
+    .sort({ purchasedAt: -1 })
     .toArray();
 
   return NextResponse.json(orders);
 }
 
-// POST — Create new order (for fallback cases, not Stripe)
+// POST — Create new order
 export async function POST(req: Request) {
   const session = await auth();
   const client = await clientPromise;
   const db = client.db("fivestar");
 
   try {
-    const { products, totalPrice, paymentMethod, deliveryMethod } = await req.json();
+    const { product, quantity, totalPrice, paymentMethod, deliveryMethod } = await req.json();
 
-    const userId = session?.user?.id || "guest";
+    const user = session?.user?.id || "guest"; // same field name
     const order = {
-      userId,
-      products,
-      total: totalPrice,
+      user,
+      product,
+      quantity,
+      totalPrice,
       paymentMethod,
       deliveryMethod,
       status: "pending",
-      createdAt: new Date(),
+      purchasedAt: new Date(),
     };
 
     await db.collection("orders").insertOne(order);
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
   }
 }
 
-// PUT — Update user's own order (for example, refund or mark as completed)
+// PUT — Update user's own order
 export async function PUT(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -70,7 +70,7 @@ export async function PUT(req: Request) {
   const db = client.db("fivestar");
 
   const order = await db.collection("orders").findOne({ _id: new ObjectId(orderId) });
-  if (!order || order.userId !== session.user.id) {
+  if (!order || order.user !== session.user.id) {
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   }
 

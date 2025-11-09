@@ -5,9 +5,11 @@ import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
+
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [visibleCount, setVisibleCount] = useState(3);
 
   const [form, setForm] = useState({
     email: "",
@@ -167,17 +169,20 @@ export default function ProfilePage() {
       </p>
 
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
-        {/* --- Order History --- */}
-        <section className="border border-gray-200 rounded-xl p-5 shadow-sm">
-          <h2 className="text-lg font-semibold mb-4">Order History</h2>
 
-          {loadingOrders ? (
-            <p className="text-sm text-gray-500">Loading orders...</p>
-          ) : orders.length === 0 ? (
-            <p className="text-sm text-gray-500">No orders found.</p>
-          ) : (
+      {/* --- Order History --- */}
+      
+      <section className="border border-gray-200 rounded-xl p-5 shadow-sm">
+        <h2 className="text-lg font-semibold mb-4">Order History</h2>
+
+        {loadingOrders ? (
+          <p className="text-sm text-gray-500">Loading orders...</p>
+        ) : orders.length === 0 ? (
+          <p className="text-sm text-gray-500">No orders found.</p>
+        ) : (
+          <>
             <ul className="divide-y divide-gray-200">
-              {orders.map((order) => (
+              {orders.slice(0, visibleCount).map((order) => (
                 <li key={order._id} className="py-3">
                   <div className="flex justify-between items-center">
                     <div>
@@ -185,7 +190,7 @@ export default function ProfilePage() {
                         #{order._id.toString().slice(-6)}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {new Date(order.createdAt).toLocaleDateString()}
+                        {new Date(order.purchasedAt || order.createdAt).toLocaleDateString()}
                       </p>
                       <p className="text-sm text-gray-500">
                         Status:{" "}
@@ -202,7 +207,7 @@ export default function ProfilePage() {
                         </span>
                       </p>
                       <p className="text-sm text-gray-600">
-                        Total: ${order.total?.toFixed(2) || 0}
+                        Total: ${order.totalPrice?.toFixed(2) || order.total?.toFixed(2) || 0}
                       </p>
                     </div>
 
@@ -232,8 +237,22 @@ export default function ProfilePage() {
                 </li>
               ))}
             </ul>
-          )}
-        </section>
+
+            {/* --- Show More Button --- */}
+            {visibleCount < orders.length && (
+              <div className="text-center mt-4">
+                <button
+                  onClick={() => setVisibleCount((prev) => prev + 3)}
+                  className="text-sm text-[#660018] font-semibold hover:underline"
+                >
+                  Show more
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </section>
+
 
         {/* --- Account Settings --- */}
         <section className="border border-gray-200 rounded-xl p-5 shadow-sm">
