@@ -47,7 +47,7 @@ Live Demo: [https://fivestarsalong.onrender.com/](https://fivestarsalong.onrende
 ```bash
 1️⃣ Clone the repository
 git clone https://github.com/AllKarr/FiveStarSalong.git
-cd fiveStar-salong
+cd FiveStarSalong/fivestar-salong
 
 2️⃣ Install dependencies
 npm install
