@@ -49,10 +49,10 @@ Live Demo: [https://fivestarsalong.onrender.com/](https://fivestarsalong.onrende
 git clone https://github.com/AllKarr/FiveStarSalong.git
 cd FiveStarSalong
 
-### 2️⃣ Install dependencies
+2️⃣ Install dependencies
 npm install
 
-### 3️⃣ Create an .env.local file
+3️⃣ Create an .env.local file
 
 Add the following environment variables (adjust as needed):
 
@@ -65,7 +65,7 @@ STRIPE_SECRET_KEY=your_stripe_secret_key
 STRIPE_PUBLIC_KEY=your_stripe_publishable_key
 STRIPE_WEBHOOK_SECRET=your_webhook_secret
 
-### 4️⃣ Run the development server
+4️⃣ Run the development server
 npm run dev
 
 
