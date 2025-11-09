@@ -43,6 +43,7 @@ export default function InstagramGallery() {
                 alt={`Instagram post ${id}`}
                 width={800}
                 height={800}
+                unoptimized
                 className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
               />
 
