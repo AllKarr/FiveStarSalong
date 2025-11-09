@@ -42,9 +42,8 @@ Live Demo: [https://fivestarsalong.onrender.com/](https://fivestarsalong.onrende
 
 ---
 
-## Getting Started
+### Getting Started
 
-### 
 1️⃣ Clone the repository
 ```bash
 git clone https://github.com/AllKarr/FiveStarSalong.git
