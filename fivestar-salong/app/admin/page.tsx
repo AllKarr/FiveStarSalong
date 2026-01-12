@@ -8,10 +8,12 @@ export default function AdminPage() {
   const { data: session } = useSession();
 
   const [orders, setOrders] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
   const [newProduct, setNewProduct] = useState({
+    
     name: "",
     category: "",
     description: "",
@@ -32,15 +34,19 @@ export default function AdminPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [ordersRes, productsRes, reviewsRes] = await Promise.all([
+      const [ordersRes, productsRes, reviewsRes, usersRes] = await Promise.all([
         fetch("/api/admin/orders"),
         fetch("/api/products"),
         fetch("/api/admin/reviews"),
+        fetch("/api/admin/users"),
       ]);
+
       setOrders(await ordersRes.json());
       setProducts(await productsRes.json());
       setReviews(await reviewsRes.json());
+      setUsers(await usersRes.json());
     };
+
     fetchData();
   }, []);
 
@@ -128,6 +134,33 @@ export default function AdminPage() {
     setOrders(await res.json());
   };
 
+  // USERS ACTIONS
+  const updateUserRole = async (userId: string, role: "user" | "admin") => {
+  await fetch("/api/admin/users", {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({ userId, role }),
+  });
+  refreshUsers();
+};
+
+const deleteUser = async (userId: string) => {
+  if (!confirm("Are you sure you want to delete this user?")) return;
+
+  await fetch("/api/admin/users", {
+    method: "DELETE",
+    headers,
+    body: JSON.stringify({ userId }),
+  });
+  refreshUsers();
+};
+
+const refreshUsers = async () => {
+  const res = await fetch("/api/admin/users");
+  setUsers(await res.json());
+};
+
+
   // REVIEW ACTIONS
   const handleReviewAction = async (action: string, reviewId?: string, data?: any) => {
     await fetch("/api/admin/reviews", {
@@ -167,9 +200,10 @@ export default function AdminPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-6 w-full max-w-7xl">
+
         {/* PRODUCTS */}
-        <section className="border border-gray-300 rounded-2xl p-5 shadow-sm">
+        <section className="border border-gray-300 rounded-2xl p-5 shadow-sm max-h-[800px]">
           <h2 className="text-xl font-semibold mb-4">Products</h2>
 
           {/* Add Product Form */}
@@ -250,7 +284,7 @@ export default function AdminPage() {
           </div>
 
           {/* Product List */}
-          <div className="max-h-[400px] overflow-y-auto space-y-3">
+          <div className="max-h-[370px] overflow-y-auto space-y-3 bg-gray-50">
             {products.length === 0 && <p className="text-sm text-gray-600">No products found.</p>}
             {products.map((product: any) => (
               <div
@@ -289,11 +323,62 @@ export default function AdminPage() {
           </div>
         </section>
 
+        {/* USERS */}
+          <section className="border border-gray-300 rounded-2xl p-5 shadow-sm max-h-[800px]">
+            <h2 className="text-xl font-semibold mb-4">Users</h2>
+
+            {users.length === 0 && (
+              <p className="text-sm text-gray-600">No users found</p>
+            )}
+
+            <div className="max-h-[700px] overflow-y-auto space-y-3">
+              {users.map((user) => (
+                <div
+                  key={user._id}
+                  className="flex flex-col border border-gray-200 p-3 rounded-lg shadow-sm"
+                >
+                  <span className="text-sm font-medium">
+                    {user.name} {user.surname}
+                  </span>
+
+                  <span className="text-xs text-gray-500">
+                    {user.email}
+                  </span>
+
+                  <span className="text-xs text-gray-600">
+                    Role: {user.role}
+                  </span>
+
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <select
+                      value={user.role}
+                      onChange={(e) =>
+                        updateUserRole(user._id, e.target.value as "user" | "admin")
+                      }
+                      className="border border-gray-300 rounded px-2 py-1 text-xs"
+                    >
+                      <option value="user">User</option>
+                      <option value="admin">Admin</option>
+                    </select>
+
+                    <button
+                      onClick={() => deleteUser(user._id)}
+                      className="bg-red-600 text-white px-3 py-1 rounded text-xs"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+
         {/* ORDERS */}
-        <section className="border border-gray-300 rounded-2xl p-5 shadow-sm">
+        <section className="border border-gray-300 rounded-2xl p-5 shadow-sm h-full">
           <h2 className="text-xl font-semibold mb-4">Orders</h2>
           {orders.length === 0 && <p className="text-sm text-gray-600">No orders found</p>}
-          <div className="max-h-[400px] overflow-y-auto space-y-3">
+          <div className="max-h-[700px] overflow-y-auto space-y-3">
             {orders.map((order) => (
               <div
                 key={order._id}
@@ -327,10 +412,10 @@ export default function AdminPage() {
         </section>
 
         {/* REVIEWS */}
-        <section className="border border-gray-300 rounded-2xl p-5 shadow-sm md:col-span-2">
+        <section className="border border-gray-300 rounded-2xl p-5 shadow-sm h-full">
           <h2 className="text-xl font-semibold mb-4">Reviews</h2>
           {reviews.length === 0 && <p className="text-sm text-gray-600">No reviews found</p>}
-          <div className="max-h-[400px] overflow-y-auto space-y-3">
+          <div className="max-h-[700px] overflow-y-auto space-y-3">
             {reviews.map((review) => (
               <div
                 key={review._id}
